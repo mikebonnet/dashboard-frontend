@@ -191,7 +191,7 @@ server <- function(input, output, session) {
     }
 
     repo = paste(input$side_org, input$side_repo, sep = '/')
-    httr::GET(url  = 'http://dev.stats.eng.ansible.com:7033',
+    httr::GET(url  = config::get('api_url'),
               path = '/search',
               query = list(repo = repo, word = input$word)
     ) -> res

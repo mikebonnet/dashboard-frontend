@@ -1,0 +1,7 @@
+default:
+  board_url: http://dev.stats.eng.ansible.com:7032/data.txt
+  api_url: http://dev.stats.eng.ansible.com:7033
+
+container:
+  board_url: http://backend-data/pins/data.txt
+  api_url: http://backend-api
