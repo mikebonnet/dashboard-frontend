@@ -10,9 +10,15 @@ pins::board_register_datatxt(name = "conscious_lang",
 # Functions
 bar_plot <- function(d,word) {
   word_str <- quo_name(enquo(word))
+  link_tbl <- config::get('search_links') %>% bind_rows()
   plot <- d %>%
-    mutate(label  = glue('{org}/{repo}'),
-           search = glue('{url}/search?q={word_str}&unscoped_q={word_str}')) %>%
+    mutate(label = glue('{org}/{repo}'),
+           word = rep(c(word_str), length(url)),
+           matches = map(url, function(u) map_lgl(link_tbl$pattern, grepl, x=u)),
+           template = map(matches, function(x) first(link_tbl$template[x]))) %>%
+    rowwise() %>%
+    mutate(search=ifelse(!is.na(template), glue(template), url)) %>%
+    ungroup() %>%
     arrange(-{{word}}) %>%
     slice(1:10) %>%
     ggplot(aes(fct_reorder(label,{{word}}),{{word}})) +
@@ -38,8 +44,6 @@ bar_plot <- function(d,word) {
 }
 
 line_plot <- function(h,word) {
-  word_str <- quo_name(enquo(word))
-
   plot <- h %>%
     group_by(date) %>%
     distinct(org,repo,.keep_all = T) %>%

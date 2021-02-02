@@ -1,6 +1,14 @@
 default:
   board_url: http://dev.stats.eng.ansible.com:7032/data.txt
   api_url: http://dev.stats.eng.ansible.com:7033
+  # Templates may reference:
+  # - url
+  # - org
+  # - repo
+  # - word
+  search_links:
+    - pattern: github\.com
+      template: "https://github.com/{org}/{repo}/search?q={word}"
 
 container:
   board_url: http://backend-data/pins/data.txt
