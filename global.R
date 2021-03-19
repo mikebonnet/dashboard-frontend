@@ -12,10 +12,10 @@ bar_plot <- function(d,word) {
   word_str <- quo_name(enquo(word))
   link_tbl <- config::get('search_links') %>% bind_rows()
   plot <- d %>%
-    mutate(label = glue('{org}/{repo}'),
-           word = rep(c(word_str), length(url)),
+    mutate(label = glue('{org}/{name}'),
+           word = word_str,
            matches = map(url, function(u) map_lgl(link_tbl$pattern, grepl, x=u)),
-           template = map(matches, function(x) first(link_tbl$template[x]))) %>%
+           template = map_chr(matches, function(x) first(link_tbl$template[x]))) %>%
     rowwise() %>%
     mutate(search=ifelse(!is.na(template), glue(template), url)) %>%
     ungroup() %>%
@@ -46,7 +46,7 @@ bar_plot <- function(d,word) {
 line_plot <- function(h,word) {
   plot <- h %>%
     group_by(date) %>%
-    distinct(org,repo,.keep_all = T) %>%
+    distinct(org,name,.keep_all = T) %>%
     summarise(across(where(is.numeric), mean), repos = n()) %>%
     mutate(across(where(is.numeric), round)) %>%
     select(date,word = {{word}}, repos) %>%

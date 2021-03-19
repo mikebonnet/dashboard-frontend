@@ -39,7 +39,7 @@ server <- function(input, output, session) {
     repos <- if (input$side_org == 'All') {
       raw() %>%
         filter(date == max(date)) %>%
-        mutate(label = glue('{org}/{repo}')) %>%
+        mutate(label = glue('{org}/{name}')) %>%
         pull(label) %>%
         unique() %>%
         sort()
@@ -47,7 +47,7 @@ server <- function(input, output, session) {
       raw() %>%
         filter(date == max(date)) %>%
         filter(org == input$side_org) %>%
-        pull(repo) %>%
+        pull(name) %>%
         unique() %>%
         sort()
     }
@@ -80,7 +80,7 @@ server <- function(input, output, session) {
     or <- org_repo()
     tmp <- raw() %>%
       filter(if (or$org  == 'All') TRUE else org  == or$org) %>%
-      filter(if (or$repo == 'All') TRUE else repo == or$repo)
+      filter(if (or$repo == 'All') TRUE else name == or$repo)
     h(tmp)
     tmp <- tmp %>%
       filter(date == max(date)) %>%
@@ -159,9 +159,10 @@ server <- function(input, output, session) {
       rowwise() %>%
       mutate(url = map_chr(url, ~ toString(htmltools::tags$a(href=url,url))),
              total = sum(c_across(where(is.numeric)))) %>%
-      relocate(total, .after = url) %>%
+      replace_na(list(branch = '(default)')) %>%
+      relocate(total, .after = branch) %>%
       ungroup() %>%
-      select(-org,-repo) %>% # redundant for display purposes
+      select(-org,-repo,-prefix,-name) %>% # redundant for display purposes
       arrange(-total) %>%
       DT::datatable(escape=F)
   })
